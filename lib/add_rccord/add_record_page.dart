@@ -66,7 +66,13 @@ class _AddRecordPageState extends State {
                 'player12Score': this.player12Score,
                 'player21Score': this.player21Score,
                 'player22Score': this.player22Score,
-                'isSingle': this.data['isSingle']
+                'isSingle': this.data['isSingle'],
+                'team1': this.data['team1'],
+                'team2': this.data['team2'],
+                'player11': this.data['player11'],
+                'player12': this.data['player12'],
+                'player21': this.data['player21'],
+                'player22': this.data['player22'],
               };
               DataCenter.addAReacrd(data);
               Toast.show('保存成功');
@@ -204,7 +210,9 @@ class _AddRecordPageState extends State {
                   date,
                   style: TextStyle(color: Color(0xFF666666), fontSize: 15),
                 ),
-                SizedBox(height: 8,),
+                SizedBox(
+                  height: 8,
+                ),
                 Text(
                   '提示：点击球员来增加得分',
                   style: TextStyle(color: Color(0xFF999999), fontSize: 10),
@@ -435,8 +443,6 @@ class _AddRecordPageState extends State {
               SizedBox(
                 height: 15,
               ),
-              // Image.asset('name',width: 80,height: 80,),
-
               Text(
                 teamName,
                 style: TextStyle(

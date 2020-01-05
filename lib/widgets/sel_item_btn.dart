@@ -28,7 +28,9 @@ class SelItemBtn extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text(this.text),
+              Expanded(
+                child: Text(this.text, style: TextStyle(color: Color(0xFF666666), fontSize: 12),),
+              ),
               Icon(
                 MdiIcons.arrowRightBoldHexagonOutline,
                 color: Colors.grey,

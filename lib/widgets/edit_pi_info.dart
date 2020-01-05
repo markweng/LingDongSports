@@ -8,7 +8,6 @@ import 'package:sport_score_app/data_center/data_center.dart';
 import 'package:sport_score_app/utils/screen_util.dart';
 import 'package:sport_score_app/utils/toast.dart';
 import 'package:sport_score_app/widgets/sel_item_btn.dart';
-import 'package:sport_score_app/widgets/sel_item_dailog.dart';
 import 'dart:convert' as convert;
 
 class EditPIInfo extends StatefulWidget {
