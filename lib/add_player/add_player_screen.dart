@@ -1,7 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sport_score_app/data_center/data_center.dart';
 import 'package:sport_score_app/utils/screen_util.dart';
+// import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:sport_score_app/utils/toast.dart';
 
 class AddPlayerScreen extends StatefulWidget {
   @override
@@ -15,6 +22,7 @@ class _AddPlayerScreenState extends State {
   TextEditingController _nameController;
   TextEditingController _heightController;
   TextEditingController _ageController;
+  File _image;
   @override
   void initState() {
     _nameController = TextEditingController();
@@ -53,17 +61,23 @@ class _AddPlayerScreenState extends State {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Container(
-                        decoration: BoxDecoration(
-                            color: Colors.blueGrey,
-                            borderRadius: BorderRadius.circular(20)),
-                        child: IconButton(
-                          icon: Icon(
-                            MdiIcons.cameraAccount,
-                            size: 50,
-                          ),
-                          iconSize: 60,
-                          onPressed: () {},
+                      GestureDetector(
+                        onTap: () {
+                          this.getImage();
+                        },
+                        child: Card(
+                          clipBehavior: Clip.hardEdge,
+                          elevation: 5,
+                          child: _image == null
+                              ? Icon(
+                                  MdiIcons.cameraAccount,
+                                  size: 50,
+                                )
+                              : Image.file(
+                                  _image,
+                                  width: 60,
+                                  height: 60,
+                                ),
                         ),
                       ),
                       SizedBox(
@@ -79,7 +93,7 @@ class _AddPlayerScreenState extends State {
                     children: <Widget>[
                       Container(
                         width: 200,
-                        height: 65,
+                        height: 70,
                         child: TextField(
                           controller: _nameController,
                           decoration: InputDecoration(labelText: '姓名'),
@@ -95,10 +109,11 @@ class _AddPlayerScreenState extends State {
                     children: <Widget>[
                       Container(
                         width: 200,
-                        height: 65,
+                        height: 70,
                         child: TextField(
+                          keyboardType: TextInputType.number,
                           controller: _heightController,
-                          decoration: InputDecoration(labelText: '身高'),
+                          decoration: InputDecoration(labelText: '身高(CM)'),
                         ),
                       )
                     ],
@@ -111,8 +126,9 @@ class _AddPlayerScreenState extends State {
                     children: <Widget>[
                       Container(
                         width: 200,
-                        height: 65,
+                        height: 70,
                         child: TextField(
+                          keyboardType: TextInputType.number,
                           controller: _ageController,
                           decoration: InputDecoration(labelText: '年龄'),
                         ),
@@ -131,13 +147,33 @@ class _AddPlayerScreenState extends State {
               color: Colors.limeAccent,
               child: Text('保存'),
               onPressed: () async {
+                if (_image == null) {
+                  Toast.show('请拍摄球员头像');
+                  return;
+                }
+                if (_nameController.text.length == 0) {
+                  Toast.show('请填写球员名字');
+                  return;
+                }
+                if (_heightController.text.length == 0) {
+                  Toast.show('请填写球员身高');
+                  return;
+                }
+                if (_ageController.text.length == 0) {
+                  Toast.show('请填写球员年龄');
+                  return;
+                }
+
+                String path = await _save();
                 Map data = {
                   'name': _nameController.text,
                   'height': _heightController.text,
-                  'age': _heightController.text
+                  'age': _ageController.text,
+                  'image': path
                 };
+                print(data.toString());
                 await DataCenter.addAPlayer(data);
-                
+
                 Navigator.of(context).pop();
               },
             ),
@@ -148,5 +184,45 @@ class _AddPlayerScreenState extends State {
         ),
       ),
     );
+  }
+
+  Future getImage() async {
+    var image = await ImagePicker.pickImage(source: ImageSource.camera);
+    File croppedFile = await ImageCropper.cropImage(
+      sourcePath: image.path,
+      aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
+      androidUiSettings: AndroidUiSettings(
+          toolbarTitle: 'Cropper',
+          toolbarColor: Colors.deepOrange,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: false),
+      iosUiSettings: IOSUiSettings(
+        minimumAspectRatio: 1.0,
+        cancelButtonTitle: '取消',
+        doneButtonTitle: '完成',
+      ),
+    );
+    setState(() {
+      _image = croppedFile;
+    });
+  }
+
+  Future _save() async {
+    Directory documentsDir = await getApplicationDocumentsDirectory();
+    String documentsPath = documentsDir.path;
+    String path = _image.path;
+    List pathArr = path.split('/');
+    String lastStr = pathArr.last;
+    File file = File('$documentsPath/$lastStr');
+    if (!file.existsSync()) {
+      file.createSync();
+    }
+    List<int> imageBytes = await _image.readAsBytes();
+    file.writeAsBytesSync(imageBytes);
+    if (!file.existsSync()) {
+      Toast.show('success');
+    }
+    return file.path;
   }
 }

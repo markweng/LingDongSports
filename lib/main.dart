@@ -3,14 +3,12 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:sport_score_app/add_rccord/add_record_page.dart';
 import 'package:sport_score_app/launch/launch_screen.dart';
 import 'package:sport_score_app/settings/settings_page.dart';
 import 'package:sport_score_app/utils/screen_util.dart';
 import 'package:sport_score_app/widgets/edit_pi_info.dart';
-import 'package:sport_score_app/widgets/sel_item_btn.dart';
 import 'home/home_page.dart';
-
+import 'package:jpush_flutter/jpush_flutter.dart';
 void main() => runApp(MyApp());
 
 /// This Widget is the main application widget.
@@ -43,9 +41,21 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   List<Widget> pages = [HomePage(), SettingsPage()];
   int _showIndex = 0;
   bool showApp = false;
+   JPush jpush = new JPush();
  @override
   void initState() {
     super.initState();
+    jpush.setup(appKey: 'e6d946e86f0875d85a3310d1' ,channel: 'applestore');
+    // 监听jpush
+    jpush.addEventHandler(
+        onReceiveNotification: (Map<String, dynamic> message) async {
+          print("flutter 接收到推送: $message");
+        },
+        onOpenNotification: (Map<String, dynamic> message) {
+         // 点击通知栏消息，在此时通常可以做一些页面跳转等
+      
+        },
+    );
     Timer(Duration(seconds: 2), (){
       setState(() {
         showApp = true;

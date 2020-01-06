@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -100,7 +102,7 @@ class PanelOne extends StatelessWidget {
             itemCount: data.length,
             itemBuilder: (BuildContext context, int index) {
               Map item = convert.jsonDecode(data[index]);
-
+              print(item.toString());
               return Card(
                 child: Container(
                   height: 80,
@@ -112,7 +114,6 @@ class PanelOne extends StatelessWidget {
                         children: <Widget>[
                           Container(
                             alignment: Alignment.centerRight,
-                            width: 80,
                             child: Text(
                               item['team1']['name'],
                               style: TextStyle(
@@ -125,10 +126,15 @@ class PanelOne extends StatelessWidget {
                             width: 10,
                           ),
                           Card(
-                            child: Container(
-                              color: Colors.yellow,
-                              width: 60,
-                              height: 60,
+                            elevation: 3,
+                            clipBehavior: Clip.hardEdge,
+                            child: Image.file(
+                              File(
+                                item['team1']['image'],
+                              ),
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
                             ),
                           ),
                         ],
@@ -143,17 +149,21 @@ class PanelOne extends StatelessWidget {
                       Row(
                         children: <Widget>[
                           Card(
-                            child: Container(
-                              color: Colors.yellow,
-                              width: 60,
-                              height: 60,
+                            elevation: 3,
+                            clipBehavior: Clip.hardEdge,
+                            child: Image.file(
+                              File(
+                                item['team2']['image'],
+                              ),
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
                             ),
                           ),
                           SizedBox(
                             width: 10,
                           ),
                           Container(
-                            width: 80,
                             child: Text(
                               item['team2']['name'],
                               style: TextStyle(
@@ -221,10 +231,15 @@ class PanelTwo extends StatelessWidget {
                       Row(
                         children: <Widget>[
                           Card(
-                            child: Container(
-                              color: Colors.yellow,
+                            elevation: 3,
+                            clipBehavior: Clip.hardEdge,
+                            child: Image.file(
+                              File(
+                                item['image'],
+                              ),
                               width: 60,
                               height: 60,
+                              fit: BoxFit.cover,
                             ),
                           ),
                           SizedBox(
@@ -308,10 +323,15 @@ class PanelThree extends StatelessWidget {
                       Row(
                         children: <Widget>[
                           Card(
-                            child: Container(
-                              color: Colors.yellow,
+                            elevation: 5,
+                            clipBehavior: Clip.hardEdge,
+                            child: Image.file(
+                              File(
+                                item['image'],
+                              ),
                               width: 60,
                               height: 60,
+                              fit: BoxFit.cover,
                             ),
                           ),
                           SizedBox(

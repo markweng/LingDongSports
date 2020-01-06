@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -180,24 +182,34 @@ class _AddRecordPageState extends State {
                       width: 15,
                     ),
                     _buildProfileItem1(
-                        this.data['team1']['name'],
-                        '',
-                        this.data['player11']['name'],
-                        this.data['player12'] != null
-                            ? this.data['player12']['name']
-                            : '',
-                        team1ShowClockScore),
+                      this.data['team1']['name'],
+                      '',
+                      this.data['player11']['name'],
+                      this.data['player12'] != null
+                          ? this.data['player12']['name']
+                          : '',
+                      team1ShowClockScore,
+                      this.data['player11']['image'],
+                      this.data['player12'] != null
+                          ? this.data['player12']['image']
+                          : '',
+                    ),
                     SizedBox(
                       width: 10,
                     ),
                     _buildProfileItem2(
-                        this.data['team2']['name'],
-                        '',
-                        this.data['player21']['name'],
-                        this.data['player22'] != null
-                            ? this.data['player22']['name']
-                            : '',
-                        team2ShowClockScore),
+                      this.data['team2']['name'],
+                      '',
+                      this.data['player21']['name'],
+                      this.data['player22'] != null
+                          ? this.data['player22']['name']
+                          : '',
+                      team2ShowClockScore,
+                      this.data['player21']['image'],
+                      this.data['player22'] != null
+                          ? this.data['player22']['image']
+                          : '',
+                    ),
                     SizedBox(
                       width: 15,
                     ),
@@ -226,12 +238,7 @@ class _AddRecordPageState extends State {
   }
 
   Widget _buildProfileItem1(
-    String teamName,
-    image,
-    player1,
-    player2,
-    score,
-  ) {
+      String teamName, image, player1, player2, score, image1, image2) {
     return Expanded(
       child: Card(
         elevation: 5,
@@ -305,10 +312,13 @@ class _AddRecordPageState extends State {
                         Card(
                           child: Row(
                             children: <Widget>[
-                              Container(
-                                width: 30,
-                                height: 30,
-                                color: Colors.grey[300],
+                              Card(
+                                clipBehavior: Clip.hardEdge,
+                                child: Image.file(
+                                  File(image1),
+                                  width: 30,
+                                  height: 30,
+                                ),
                               ),
                               SizedBox(
                                 width: 10,
@@ -381,10 +391,13 @@ class _AddRecordPageState extends State {
                                 Card(
                                   child: Row(
                                     children: <Widget>[
-                                      Container(
-                                        width: 30,
-                                        height: 30,
-                                        color: Colors.grey[300],
+                                      Card(
+                                        clipBehavior: Clip.hardEdge,
+                                        child: Image.file(
+                                          File(image2),
+                                          width: 30,
+                                          height: 30,
+                                        ),
                                       ),
                                       SizedBox(
                                         width: 10,
@@ -428,12 +441,7 @@ class _AddRecordPageState extends State {
   }
 
   Widget _buildProfileItem2(
-    String teamName,
-    image,
-    player1,
-    player2,
-    score,
-  ) {
+      String teamName, image, player1, player2, score, image1, image2) {
     return Expanded(
       child: Card(
         elevation: 5,
@@ -505,10 +513,13 @@ class _AddRecordPageState extends State {
                           Card(
                             child: Row(
                               children: <Widget>[
-                                Container(
-                                  width: 30,
-                                  height: 30,
-                                  color: Colors.grey[300],
+                                Card(
+                                  clipBehavior: Clip.hardEdge,
+                                  child: Image.file(
+                                    File(image1),
+                                    width: 30,
+                                    height: 30,
+                                  ),
                                 ),
                                 SizedBox(
                                   width: 10,
@@ -578,10 +589,13 @@ class _AddRecordPageState extends State {
                                 Card(
                                   child: Row(
                                     children: <Widget>[
-                                      Container(
-                                        width: 30,
-                                        height: 30,
-                                        color: Colors.grey[300],
+                                      Card(
+                                        clipBehavior: Clip.hardEdge,
+                                        child: Image.file(
+                                          File(image2),
+                                          width: 30,
+                                          height: 30,
+                                        ),
                                       ),
                                       SizedBox(
                                         width: 10,

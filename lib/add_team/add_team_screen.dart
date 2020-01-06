@@ -1,7 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sport_score_app/data_center/data_center.dart';
 import 'package:sport_score_app/utils/screen_util.dart';
+import 'package:sport_score_app/utils/toast.dart';
 
 class AddTeamScreen extends StatefulWidget {
   @override
@@ -13,6 +19,7 @@ class AddTeamScreen extends StatefulWidget {
 
 class _AddteamScreenState extends State {
   TextEditingController _nameController;
+  File _image;
 
   @override
   void initState() {
@@ -50,17 +57,23 @@ class _AddteamScreenState extends State {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Container(
-                        decoration: BoxDecoration(
-                            color: Colors.blueGrey,
-                            borderRadius: BorderRadius.circular(20)),
-                        child: IconButton(
-                          icon: Icon(
-                            MdiIcons.cameraAccount,
-                            size: 50,
-                          ),
-                          iconSize: 60,
-                          onPressed: () {},
+                      GestureDetector(
+                        onTap: () {
+                          this.getImage();
+                        },
+                        child: Card(
+                          clipBehavior: Clip.hardEdge,
+                          elevation: 5,
+                          child: _image == null
+                              ? Icon(
+                                  MdiIcons.cameraAccount,
+                                  size: 50,
+                                )
+                              : Image.file(
+                                  _image,
+                                  width: 60,
+                                  height: 60,
+                                ),
                         ),
                       ),
                       SizedBox(
@@ -76,7 +89,7 @@ class _AddteamScreenState extends State {
                     children: <Widget>[
                       Container(
                         width: 200,
-                        height: 65,
+                        height: 70,
                         child: TextField(
                           controller: _nameController,
                           decoration: InputDecoration(labelText: '名称'),
@@ -96,11 +109,17 @@ class _AddteamScreenState extends State {
               color: Colors.limeAccent,
               child: Text('保存'),
               onPressed: () async {
-                Map data = {
-                  'name': _nameController.text,
-                };
+                if (_image == null) {
+                  Toast.show('请拍摄球对头像');
+                  return;
+                }
+                if (_nameController.text.length == 0) {
+                  Toast.show('请填写球对名字');
+                  return;
+                }
+                String path = await _save();
+                Map data = {'name': _nameController.text, 'image': path};
                 await DataCenter.addATeam(data);
-
                 Navigator.of(context).pop();
               },
             ),
@@ -111,5 +130,45 @@ class _AddteamScreenState extends State {
         ),
       ),
     );
+  }
+
+  Future getImage() async {
+    var image = await ImagePicker.pickImage(source: ImageSource.camera);
+    File croppedFile = await ImageCropper.cropImage(
+      sourcePath: image.path,
+      aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
+      androidUiSettings: AndroidUiSettings(
+          toolbarTitle: 'Cropper',
+          toolbarColor: Colors.deepOrange,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: false),
+      iosUiSettings: IOSUiSettings(
+        minimumAspectRatio: 1.0,
+        cancelButtonTitle: '取消',
+        doneButtonTitle: '完成',
+      ),
+    );
+    setState(() {
+      _image = croppedFile;
+    });
+  }
+
+  Future _save() async {
+    Directory documentsDir = await getApplicationDocumentsDirectory();
+    String documentsPath = documentsDir.path;
+    String path = _image.path;
+    List pathArr = path.split('/');
+    String lastStr = pathArr.last;
+    File file = File('$documentsPath/$lastStr');
+    if (!file.existsSync()) {
+      file.createSync();
+    }
+    List<int> imageBytes = await _image.readAsBytes();
+    file.writeAsBytesSync(imageBytes);
+    // if (!file.existsSync()) {
+    //   Toast.show('success');
+    // }
+    return file.path;
   }
 }
