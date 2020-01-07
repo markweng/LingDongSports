@@ -44,7 +44,7 @@ class _AboutUsScreenState extends State {
                     children: <Widget>[
                       Expanded(
                         child: Text(
-                          '       灵动体育是为网球运动者制作的一款记录比赛得分的应用，使用该应用可以记录球员，球队，比赛信息。\n        若使用该应用遇到问题，可以直接在应用内向我们反馈，也可以通过邮箱联系我们。',
+                          '       凌动体育是为网球运动者制作的一款记录比赛得分的应用，使用该应用可以记录球员，球队，比赛信息。\n        若使用该应用遇到问题，可以直接在应用内向我们反馈，也可以通过邮箱联系我们。',
                           style: TextStyle(color: Color(0xFF666666)),
                         ),
                       )
