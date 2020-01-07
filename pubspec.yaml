@@ -27,6 +27,11 @@ dependencies:
   scoped_model: ^1.0.1
   shared_preferences: ^0.5.0
   fluttertoast: ^2.1.1
+  image_picker: ^0.6.2
+  image_cropper: ^1.1.2
+  path_provider: ^1.4.0
+  flutter_webview_plugin: ^0.3.10+1
+  jpush_flutter: ^0.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

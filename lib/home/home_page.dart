@@ -19,6 +19,7 @@ class HomePage extends StatefulWidget {
 /// Implementation of Backdrop Widget starts here.
 
 class _HomePageState extends State<HomePage> {
+  
   @override
   Widget build(BuildContext context) {
     return ScopedModel(
@@ -399,6 +400,7 @@ class BackPanel extends StatefulWidget {
 }
 
 class _BackPanelState extends State<BackPanel> {
+
   List data1 = [];
   List data2 = [];
   List data3 = [];

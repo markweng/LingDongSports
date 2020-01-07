@@ -45,7 +45,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
  @override
   void initState() {
     super.initState();
-    jpush.setup(appKey: 'e6d946e86f0875d85a3310d1' ,channel: 'applestore');
+    jpush.setup(appKey: 'e6d946e86f0875d85a3310d1' ,channel: 'applestore',production:false);
     // 监听jpush
     jpush.addEventHandler(
         onReceiveNotification: (Map<String, dynamic> message) async {
