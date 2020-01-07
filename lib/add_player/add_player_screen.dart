@@ -63,7 +63,7 @@ class _AddPlayerScreenState extends State {
                     children: <Widget>[
                       GestureDetector(
                         onTap: () {
-                          this.getImage();
+                          this._takePic();
                         },
                         child: Card(
                           clipBehavior: Clip.hardEdge,
@@ -186,8 +186,43 @@ class _AddPlayerScreenState extends State {
     );
   }
 
-  Future getImage() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.camera);
+  _takePic() {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.photo),
+                title: Text("相册"),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  getImage(0);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.camera),
+                title: Text("相机"),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  getImage(1);
+                },
+              ),
+              SizedBox(
+                height: 30,
+              )
+            ],
+          );
+        });
+  }
+
+  Future getImage(int type) async {
+    var image = await ImagePicker.pickImage(
+        source: type == 0 ? ImageSource.gallery : ImageSource.camera);
+    if (image == null) {
+      return;
+    }
     File croppedFile = await ImageCropper.cropImage(
       sourcePath: image.path,
       aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),

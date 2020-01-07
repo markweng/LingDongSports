@@ -8,7 +8,8 @@ import 'package:sport_score_app/settings/settings_page.dart';
 import 'package:sport_score_app/utils/screen_util.dart';
 import 'package:sport_score_app/widgets/edit_pi_info.dart';
 import 'home/home_page.dart';
-import 'package:jpush_flutter/jpush_flutter.dart';
+
+// import 'package:jpush_flutter/jpush_flutter.dart';
 void main() => runApp(MyApp());
 
 /// This Widget is the main application widget.
@@ -18,7 +19,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: _title,
+      color: Colors.white,
       theme: ThemeData(
         primarySwatch: Colors.yellow,
       ),
@@ -37,31 +40,32 @@ class MyStatefulWidget extends StatefulWidget {
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
- 
   List<Widget> pages = [HomePage(), SettingsPage()];
   int _showIndex = 0;
   bool showApp = false;
-   JPush jpush = new JPush();
- @override
+  //  JPush jpush = new JPush();
+
+  @override
   void initState() {
     super.initState();
-    jpush.setup(appKey: 'e6d946e86f0875d85a3310d1' ,channel: 'applestore');
-    // 监听jpush
-    jpush.addEventHandler(
-        onReceiveNotification: (Map<String, dynamic> message) async {
-          print("flutter 接收到推送: $message");
-        },
-        onOpenNotification: (Map<String, dynamic> message) {
-         // 点击通知栏消息，在此时通常可以做一些页面跳转等
-      
-        },
-    );
-    Timer(Duration(seconds: 2), (){
+    // jpush.setup(appKey: 'e6d946e86f0875d85a3310d1' ,channel: 'applestore');
+    // // 监听jpush
+    // jpush.addEventHandler(
+    //     onReceiveNotification: (Map<String, dynamic> message) async {
+    //       print("flutter 接收到推送: $message");
+    //     },
+    //     onOpenNotification: (Map<String, dynamic> message) {
+    //      // 点击通知栏消息，在此时通常可以做一些页面跳转等
+
+    //     },
+    // );
+    Timer(Duration(seconds: 2), () {
       setState(() {
         showApp = true;
       });
     });
   }
+
   Widget build(BuildContext context) {
     ScreenUtil.instance = ScreenUtil(width: 750, height: 1334)..init(context);
     return showApp

@@ -4,8 +4,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:sport_score_app/add_player/add_player_screen.dart';
+import 'package:sport_score_app/add_player/look_player_screen.dart';
+import 'package:sport_score_app/add_rccord/look_reaord_screen.dart';
 import 'package:sport_score_app/add_team/add_team_screen.dart';
+import 'package:sport_score_app/add_team/look_team_screen.dart';
 import 'package:sport_score_app/data_center/data_center.dart';
+import 'package:sport_score_app/utils/event_util.dart';
 import '../back_drop/flutter_backdrop.dart';
 import 'dart:convert' as convert;
 
@@ -19,14 +23,58 @@ class HomePage extends StatefulWidget {
 /// Implementation of Backdrop Widget starts here.
 
 class _HomePageState extends State<HomePage> {
+  StreamSubscription<PageEvent> sss;
+  StreamSubscription<PanelEvent> sss1;
+
+  var _data1 = [];
+  var _data2 = [];
+  var _data3 = [];
+  FrontPanels frontPanel = FrontPanels.panelOne;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getData();
+
+    sss = EventBusUtil.getInstance().on<PageEvent>().listen((data) {
+      _getData();
+    });
+    sss1 = EventBusUtil.getInstance().on<PanelEvent>().listen((panel) {
+      switch (panel.panel) {
+        case 0:
+          frontPanel = FrontPanels.panelOne;
+          break;
+        case 1:
+          frontPanel = FrontPanels.panelTwo;
+          break;
+        case 2:
+          frontPanel = FrontPanels.panelThree;
+          break;
+        default:
+      }
+    });
+  }
+
+  _getData() async {
+    List players = await DataCenter.getAllPlayer();
+    List teams = await DataCenter.getAllTeam();
+    List records = await DataCenter.getAllReacrd();
+
+    setState(() {
+      _data1 = records == null ? [] : records;
+      _data2 = players == null ? [] : players;
+      _data3 = teams == null ? [] : teams;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScopedModel(
-      model: FrontPanelModel(FrontPanels.panelOne),
+      model: FrontPanelModel(frontPanel, _data1, _data2, _data3),
       child: ScopedModelDescendant<FrontPanelModel>(
         builder: (context, _, model) => Backdrop(
           appBarAnimatedLeadingMenuIcon: AnimatedIcons.close_menu,
-          appBarTitle: Text('灵动体育'),
+          appBarTitle: Text('凌动体育'),
           backLayer: BackPanel(),
           toggleFrontLayer: _toggleFrontLayer,
           frontLayer: model.activePanel,
@@ -49,9 +97,11 @@ class _HomePageState extends State<HomePage> {
 enum FrontPanels { panelOne, panelTwo, panelThree }
 
 class FrontPanelModel extends Model {
+  final List list1, list2, list3;
+
   FrontPanels _activePanel;
 
-  FrontPanelModel(this._activePanel);
+  FrontPanelModel(this._activePanel, this.list1, this.list2, this.list3);
   var _data1 = [];
   var _data2 = [];
   var _data3 = [];
@@ -69,17 +119,22 @@ class FrontPanelModel extends Model {
     );
   }
 
-  Widget get activePanel => _activePanel == FrontPanels.panelOne
-      ? PanelOne(
-          data: _data1,
-        )
-      : _activePanel == FrontPanels.panelTwo
-          ? PanelTwo(
-              data: _data2,
-            )
-          : PanelThree(
-              data: _data3,
-            );
+  Widget get activePanel {
+    _data1 = list1;
+    _data2 = list2;
+    _data3 = list3;
+    return _activePanel == FrontPanels.panelOne
+        ? PanelOne(
+            data: _data1,
+          )
+        : _activePanel == FrontPanels.panelTwo
+            ? PanelTwo(
+                data: _data2,
+              )
+            : PanelThree(
+                data: _data3,
+              );
+  }
 
   void activate(FrontPanels panel, List data1, data2, data3) {
     _data1 = data1;
@@ -103,78 +158,89 @@ class PanelOne extends StatelessWidget {
             itemBuilder: (BuildContext context, int index) {
               Map item = convert.jsonDecode(data[index]);
               print(item.toString());
-              return Card(
-                child: Container(
-                  height: 80,
-                  padding: EdgeInsets.all(15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          Container(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              item['team1']['name'],
-                              style: TextStyle(
-                                  color: Color(0xFF333333),
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Card(
-                            elevation: 3,
-                            clipBehavior: Clip.hardEdge,
-                            child: Image.file(
-                              File(
-                                item['team1']['image'],
+              return GestureDetector(
+                onTap: (){
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return LookRecordScreen(data: item,);
+                      }
+                    )
+                  );
+                },
+                child: Card(
+                  child: Container(
+                    height: 80,
+                    padding: EdgeInsets.all(15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                item['team1']['name'],
+                                style: TextStyle(
+                                    color: Color(0xFF333333),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500),
                               ),
-                              width: 40,
-                              height: 40,
-                              fit: BoxFit.cover,
                             ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        '${item['team1Score'].toString()} : ${item['team2Score'].toString()}',
-                        style: TextStyle(
-                            color: Color(0xFF666666),
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Card(
-                            elevation: 3,
-                            clipBehavior: Clip.hardEdge,
-                            child: Image.file(
-                              File(
-                                item['team2']['image'],
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Card(
+                              elevation: 3,
+                              clipBehavior: Clip.hardEdge,
+                              child: Image.file(
+                                File(
+                                  item['team1']['image'],
+                                ),
+                                width: 40,
+                                height: 40,
+                                fit: BoxFit.cover,
                               ),
-                              width: 40,
-                              height: 40,
-                              fit: BoxFit.cover,
                             ),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Container(
-                            child: Text(
-                              item['team2']['name'],
-                              style: TextStyle(
-                                  color: Color(0xFF333333),
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500),
+                          ],
+                        ),
+                        Text(
+                          '${item['team1Score'].toString()} : ${item['team2Score'].toString()}',
+                          style: TextStyle(
+                              color: Color(0xFF666666),
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Card(
+                              elevation: 3,
+                              clipBehavior: Clip.hardEdge,
+                              child: Image.file(
+                                File(
+                                  item['team2']['image'],
+                                ),
+                                width: 40,
+                                height: 40,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                          ),
-                        ],
-                      )
-                    ],
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Container(
+                              child: Text(
+                                item['team2']['name'],
+                                style: TextStyle(
+                                    color: Color(0xFF333333),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -221,38 +287,46 @@ class PanelTwo extends StatelessWidget {
             itemCount: data.length,
             itemBuilder: (BuildContext context, int index) {
               Map item = convert.jsonDecode(data[index]);
-              return Card(
-                child: Container(
-                  height: 80,
-                  padding: EdgeInsets.all(15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          Card(
-                            elevation: 3,
-                            clipBehavior: Clip.hardEdge,
-                            child: Image.file(
-                              File(
-                                item['image'],
+              return GestureDetector(
+                onTap: () {
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) {
+                    return LookPlayerScreen(data: item);
+                  }));
+                },
+                child: Card(
+                  child: Container(
+                    height: 80,
+                    padding: EdgeInsets.all(15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            Card(
+                              elevation: 3,
+                              clipBehavior: Clip.hardEdge,
+                              child: Image.file(
+                                File(
+                                  item['image'],
+                                ),
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
                               ),
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
                             ),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            item['name'],
-                            style: TextStyle(
-                                color: Color(0xFF666666), fontSize: 18),
-                          ),
-                        ],
-                      )
-                    ],
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              item['name'],
+                              style: TextStyle(
+                                  color: Color(0xFF666666), fontSize: 18),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -304,6 +378,7 @@ class PanelTwo extends StatelessWidget {
 class PanelThree extends StatelessWidget {
   final List data;
   const PanelThree({Key key, this.data}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return data.length > 0
@@ -313,38 +388,48 @@ class PanelThree extends StatelessWidget {
             itemCount: data.length,
             itemBuilder: (BuildContext context, int index) {
               Map item = convert.jsonDecode(data[index]);
-              return Card(
-                child: Container(
-                  height: 80,
-                  padding: EdgeInsets.all(15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          Card(
-                            elevation: 5,
-                            clipBehavior: Clip.hardEdge,
-                            child: Image.file(
-                              File(
-                                item['image'],
+              return GestureDetector(
+                onTap: () {
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) {
+                    return LookTeamScreen(
+                      data: item,
+                    );
+                  }));
+                },
+                child: Card(
+                  child: Container(
+                    height: 80,
+                    padding: EdgeInsets.all(15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            Card(
+                              elevation: 5,
+                              clipBehavior: Clip.hardEdge,
+                              child: Image.file(
+                                File(
+                                  item['image'],
+                                ),
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
                               ),
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
                             ),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            item['name'],
-                            style: TextStyle(
-                                color: Color(0xFF666666), fontSize: 18),
-                          ),
-                        ],
-                      )
-                    ],
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              item['name'],
+                              style: TextStyle(
+                                  color: Color(0xFF666666), fontSize: 18),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -441,6 +526,7 @@ class _BackPanelState extends State<BackPanel> {
                     await _getData();
                     model.activate(FrontPanels.panelOne, data1, data2, data3);
                     _toggleFrontLayer = true;
+                    EventBusUtil.getInstance().fire(PanelEvent(0));
                   },
                 );
               },
@@ -457,6 +543,7 @@ class _BackPanelState extends State<BackPanel> {
                     await _getData();
                     model.activate(FrontPanels.panelTwo, data1, data2, data3);
                     _toggleFrontLayer = true;
+                    EventBusUtil.getInstance().fire(PanelEvent(1));
                   },
                 );
               },
@@ -473,6 +560,7 @@ class _BackPanelState extends State<BackPanel> {
                     await _getData();
                     model.activate(FrontPanels.panelThree, data1, data2, data3);
                     _toggleFrontLayer = true;
+                    EventBusUtil.getInstance().fire(PanelEvent(2));
                   },
                 );
               },
