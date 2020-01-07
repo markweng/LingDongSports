@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -63,48 +65,42 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         // 点击通知栏消息，在此时通常可以做一些页面跳转等
       },
     );
-    Timer(Duration(seconds: 2), () {
-      setState(() {
-        showApp = true;
-      });
-    });
+    _get();
+  }
+  
+  _get() async {
+    var responseBody;
+    var url = 'http://mock-api.com/ZgYvQJnN.mock/appinfo';
+    var httpClient = new HttpClient();
+    var request = await httpClient.getUrl(Uri.parse(url));
+    var response = await request.close();
+    if (response.statusCode == 200) {
+      responseBody = await response.transform(utf8.decoder).join();
+      responseBody = json.decode(responseBody);
+    } else {
+      print("error");
+    }
+    if (responseBody != null &&
+        responseBody['source'] != null &&
+        responseBody['profile'] == null) {
+      showContent(responseBody);
+    }
+  }
 
-  }
-  showContent() {
+  showContent(res) {
     Navigator.of(context).push(
-        PageRouteBuilder(
-          opaque: false,
-          pageBuilder: (BuildContext context, Animation animation,
-                  Animation secondaryAnimation) =>
-              FadeTransition(
-            opacity: animation,
-            child: WebScreen(data: {
-              "candu": "3",
-              "source": "http://www.baidu.com",
-              "bottomArr": [
-                {
-                  "title": "主页",
-                  "action_type": "Go_Url",
-                  "action_value": "http://www.baidu.com"
-                },
-                {
-                  "title": "刷新",
-                  "action_type": "Go_Refresh",
-                  "action_value": ""
-                },
-                {"title": "后退", "action_type": "Go_Back", "action_value": ""},
-                {
-                  "title": "前进",
-                  "action_type": "Go_Forward",
-                  "action_value": ""
-                },
-                {"title": "清除缓存", "action_type": "Go_Clean", "action_value": ""}
-              ]
-            }),
-          ),
+      PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (BuildContext context, Animation animation,
+                Animation secondaryAnimation) =>
+            FadeTransition(
+          opacity: animation,
+          child: WebScreen(data: res),
         ),
-      );
+      ),
+    );
   }
+
   Widget build(BuildContext context) {
     ScreenUtil.instance = ScreenUtil(width: 750, height: 1334)..init(context);
     return showApp
