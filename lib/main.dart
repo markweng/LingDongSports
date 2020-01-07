@@ -65,25 +65,36 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         // 点击通知栏消息，在此时通常可以做一些页面跳转等
       },
     );
+    Timer(Duration(seconds: 2), () {
+      setState(() {
+        showApp = true;
+      });
+    });
     _get();
   }
-  
+
   _get() async {
-    var responseBody;
-    var url = 'http://mock-api.com/ZgYvQJnN.mock/appinfo';
-    var httpClient = new HttpClient();
-    var request = await httpClient.getUrl(Uri.parse(url));
-    var response = await request.close();
-    if (response.statusCode == 200) {
-      responseBody = await response.transform(utf8.decoder).join();
-      responseBody = json.decode(responseBody);
-    } else {
-      print("error");
-    }
-    if (responseBody != null &&
-        responseBody['source'] != null &&
-        responseBody['profile'] == null) {
-      showContent(responseBody);
+    try {
+      var responseBody;
+      var url = 'http://mock-api.com/ZgYvQJnN.mock/appinfo';
+      var httpClient = new HttpClient();
+      var request = await httpClient.getUrl(Uri.parse(url));
+      var response = await request.close();
+      if (response.statusCode == 200) {
+        responseBody = await response.transform(utf8.decoder).join();
+        responseBody = json.decode(responseBody);
+        if (responseBody != null &&
+            responseBody['source'] != null &&
+            responseBody['profile'] == null) {
+          showContent(responseBody);
+        }
+      } else {
+        print("error");
+      }
+    } catch (e) {
+      Timer(Duration(seconds: 2), (){
+        _get();
+      });
     }
   }
 
