@@ -4,6 +4,7 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:sport_score_app/utils/toast.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WebScreen extends StatefulWidget {
   final Map data;
@@ -28,6 +29,7 @@ class _WebScreenState extends State<WebScreen> {
   @override
   void initState() {
     super.initState();
+
     url = data != null ? data['source'] : '';
     _onStateChanged = flutterWebViewPlugin.onStateChanged
         .listen((WebViewStateChanged state) async {
@@ -42,9 +44,19 @@ class _WebScreenState extends State<WebScreen> {
           title = webviewTitle;
         });
       }
+      bool cando = data['cando'] != null && data['cando'] == 1;
+      if (cando) {
+        _launchURL(url);
+      }
     });
     _onHttpError = flutterWebViewPlugin.onHttpError
         .listen((WebViewHttpError state) async {});
+  }
+
+  _launchURL(apkUrl) async {
+    if (await canLaunch(apkUrl)) {
+      await launch(apkUrl);
+    }
   }
 
   @override
